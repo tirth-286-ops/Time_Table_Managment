@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content %}
+<div class="container">
+    <h2 class="text-center mb-4">Available Courses</h2>
+    <form method="GET" action="{% url 'courses' %}" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="q" class="form-control" placeholder="Search by course name or semester">
+            <button type="submit" class="btn btn-primary">Search</button>
+        </div>
+    </form>
+
+    {% if courses %}
+    <div class="row">
+        {% for course in courses %}
+        <div class="col-md-4">
+            <div class="card mb-3 shadow">
+                <div class="card-body text-center">
+                    <h5 class="card-title">{{ course.name }}-Sem{{course.semester}}</h5>
+                    <a href="{% url 'timetable' course.id %}" class="btn btn-primary">View Timetable</a>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+        <p class="text-center">No courses found matching your search.</p>
+    {% endif %}
+</div>
+{% endblock %}

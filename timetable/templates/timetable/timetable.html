@@ -1,0 +1,101 @@
+{% extends 'base.html' %}
+{% load custom_filters %}
+
+{% block content %}
+<div class="container mt-4">
+<h2 class="text-center">Timetable for {{ course.name }} (Semester {{ course.semester }})</h2>
+{% if effective_note %}
+    <p class="text-center"><strong>Effective From:</strong> {{ effective_note }}</p>
+{% endif %}
+
+    <style>
+        .break {
+            color: #FF6347; 
+        }
+
+        .lab {
+            color: #32CD32;; 
+        }
+
+        .subject {
+            color: #29295e; 
+        }
+
+        .faculty {
+            color: #FFD700; 
+        }
+    </style>
+
+    <table class="table table-bordered">
+        <thead class="table-dark">
+            <tr>
+                <th>Time</th>
+                {% for day in days %}
+                    <th>{{ day }}</th>
+                {% endfor %}
+            </tr>
+        </thead>
+        <tbody>
+            {% for time in time_slots %}
+                <tr>
+                    <td>{{ time.0|format_time }} - {{ time.1|format_time }}</td>
+                    {% for day in days %}
+                        <td>
+                            {% with entries=timetable_entries|get_item:day|get_item:time %}
+                                {% if entries %}
+                                    {% for entry in entries %}
+                                        {% if entry.is_break %}
+                                            <div class="break"><strong>Break</strong></div>
+                                        {% elif entry.is_lab %}
+                                            <div class="lab">
+                                                <strong>
+                                                    {{ entry.lab_choice }} - 
+                                                    {{ entry.subject.name }}
+                                                    {% if entry.subject.track %}
+                                                        ({{ entry.subject.track }})
+                                                    {% endif %}
+                                                </strong>
+                                            </div>
+                                        {% else %}
+                                            <div class="subject">
+                                                <strong>{{ entry.subject.name }}</strong>
+                                                {% if entry.subject.track %}
+                                                    ({{ entry.subject.track }})
+                                                {% endif %}
+                                            </div>
+                                        {% endif %}
+                                    {% endfor %}
+                                {% else %}
+                                    -
+                                {% endif %}
+                            {% endwith %}
+                        </td>
+                    {% endfor %}
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <h5 class="mt-4">Subjects & Faculty</h5>
+    <table class="table table-bordered">
+        <thead class="table-secondary">
+            <tr>
+                <th>Subject</th>
+                <th>Faculty</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for subject, faculty in subjects_faculty.items %}
+                <tr>
+                    <td class="subject">{{ subject }}</td>
+                    <td class="faculty">{{ faculty }}</td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center">No subjects assigned yet.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
